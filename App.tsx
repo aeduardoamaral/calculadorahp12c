@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { HPState } from './types';
 import { calculateTVM, formatDisplay } from './services/hp12cEngine';
 
@@ -20,13 +20,12 @@ const CalculatorButton = ({
   let btnClass = "hp-btn ";
   if (color === "gold") btnClass += "hp-btn-gold ";
   else if (color === "blue") btnClass += "hp-btn-blue ";
-  if (isTall) btnClass += "h-full "; // Deixa o grid controlar a altura do botão ENTER
   
   return (
-    <div className={`relative mt-4 sm:mt-5 md:mt-6 ${className} ${isTall ? 'row-span-2' : ''}`}>
+    <div className={`relative mt-6 ${className} ${isTall ? 'row-span-2' : ''}`}>
       {f && <span className="label-f">{f}</span>}
-      <button onClick={onClick} className={btnClass}>
-        <span className="label-main font-bold">{main}</span>
+      <button onClick={onClick} className={`${btnClass} ${isTall ? 'h-full' : ''}`}>
+        <span className="label-main">{main}</span>
       </button>
       {g && <span className="label-g">{g}</span>}
     </div>
@@ -40,7 +39,7 @@ export default function App() {
     setState(prev => {
       let newDisplay = prev.isEntering ? prev.display.replace(/,/g, '') + digit : digit;
       if (newDisplay === '.') newDisplay = '0.';
-      const val = parseFloat(newDisplay);
+      const val = parseFloat(newDisplay) || 0;
       return { 
         ...prev, 
         display: newDisplay, 
@@ -84,7 +83,12 @@ export default function App() {
 
   const handleTVMSet = (key: keyof HPState['memory']) => {
     const val = parseFloat(state.display.replace(/,/g, ''));
-    setState(prev => ({ ...prev, memory: { ...prev.memory, [key]: val }, isEntering: false }));
+    setState(prev => ({ 
+      ...prev, 
+      memory: { ...prev.memory, [key]: val }, 
+      isEntering: false,
+      shift: 'none'
+    }));
   };
 
   const toggleShift = (mode: 'f' | 'g') => {
@@ -92,31 +96,30 @@ export default function App() {
   };
 
   return (
-    <div className="hp-body p-3 sm:p-5 md:p-8 rounded-xl md:rounded-2xl w-full max-w-[960px] md:w-[960px] select-none transition-all duration-300">
-      {/* Top Section: Logo and LCD */}
-      <div className="flex justify-between items-start mb-4 sm:mb-8 md:mb-10">
+    <div className="hp-body p-8 rounded-2xl w-[920px] select-none flex flex-col">
+      {/* Top Section */}
+      <div className="flex justify-between items-start mb-10">
         <div className="flex flex-col">
-          <h1 className="text-white italic font-bold text-lg sm:text-2xl md:text-3xl tracking-tighter leading-none">hp <span className="text-sm sm:text-xl md:text-2xl">12c</span></h1>
-          <span className="text-[7px] sm:text-[10px] md:text-[12px] text-gray-400 font-bold uppercase tracking-widest sm:tracking-[0.25em]">platinum financial calculator</span>
+          <h1 className="text-white italic font-black text-4xl tracking-tighter leading-none">hp <span className="text-3xl font-bold">12c</span></h1>
+          <span className="text-[11px] text-gray-500 font-bold uppercase tracking-[0.3em] mt-1">platinum financial calculator</span>
         </div>
         
-        <div className="lcd-container w-[50%] sm:w-[45%] md:w-[420px] rounded-md sm:rounded-lg p-2 sm:p-4 md:p-5 flex flex-col items-end justify-center">
-          <div className="flex justify-between w-full text-[8px] sm:text-[10px] md:text-[11px] font-bold text-black/70 mb-0 sm:mb-1 px-1">
-             <div className="flex gap-2 sm:gap-4">
-               <span className={state.shift === 'f' ? 'opacity-100' : 'opacity-0'}>f</span>
-               <span className={state.shift === 'g' ? 'opacity-100' : 'opacity-0'}>g</span>
+        <div className="lcd-container w-[400px] rounded-lg p-5 flex flex-col items-end justify-center">
+          <div className="flex justify-between w-full text-[11px] font-black text-black/60 mb-1 px-1">
+             <div className="flex gap-4">
+               <span className={state.shift === 'f' ? 'opacity-100' : 'opacity-0 transition-opacity'}>f</span>
+               <span className={state.shift === 'g' ? 'opacity-100' : 'opacity-0 transition-opacity'}>g</span>
              </div>
-             <span className="hidden sm:inline">BEGIN</span>
+             <span className="opacity-40">RPN</span>
           </div>
-          <div className="lcd-text text-xl sm:text-4xl md:text-6xl font-bold leading-none">
+          <div className="lcd-text text-6xl font-bold tracking-tighter">
             {state.display}
           </div>
         </div>
       </div>
 
-      {/* Keyboard Grid - 10 columns */}
-      <div className="grid grid-cols-10 gap-x-1 sm:gap-x-3 md:gap-x-4 gap-y-3 sm:gap-y-6 md:gap-y-8">
-        
+      {/* Keyboard Grid */}
+      <div className="grid grid-cols-10 gap-x-4 gap-y-8">
         {/* Row 1 */}
         <CalculatorButton f="AMORT" main="n" g="12x" onClick={() => handleTVMSet('n')} />
         <CalculatorButton f="INT" main="i" g="12÷" onClick={() => handleTVMSet('i')} />
@@ -154,7 +157,7 @@ export default function App() {
         <CalculatorButton main="-" onClick={() => handleOp('-')} />
 
         {/* Row 4 */}
-        <CalculatorButton main="ON" color="normal" onClick={() => setState(INITIAL_STATE)} />
+        <CalculatorButton main="ON" onClick={() => setState(INITIAL_STATE)} />
         <CalculatorButton main="f" color="gold" onClick={() => toggleShift('f')} />
         <CalculatorButton main="g" color="blue" onClick={() => toggleShift('g')} />
         <CalculatorButton main="STO" onClick={() => {}} />
@@ -164,11 +167,12 @@ export default function App() {
         <CalculatorButton main="." onClick={() => handleDigit('.')} />
         <CalculatorButton main="Σ+" onClick={() => {}} />
         <CalculatorButton main="+" onClick={() => handleOp('+')} />
-
       </div>
 
-      <div className="mt-6 sm:mt-10 md:mt-16 text-center text-[#555] text-[7px] sm:text-[10px] md:text-[12px] font-bold uppercase tracking-widest sm:tracking-[0.3em] border-t border-[#333] pt-3 sm:pt-6">
-        Hewlett-Packard 12C Platinum Replica
+      {/* Plate */}
+      <div className="mt-14 pt-6 border-t border-white/5 flex justify-between items-center opacity-40">
+        <span className="text-[10px] font-bold text-white uppercase tracking-widest">High-Fidelity RPN Logic</span>
+        <span className="text-[10px] font-bold text-white uppercase tracking-widest">Hewlett-Packard 12C Platinum</span>
       </div>
     </div>
   );
