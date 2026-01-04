@@ -1,41 +1,49 @@
 
-export const calculateTVM = (n: number, i: number, pv: number, pmt: number, fv: number, solveFor: string): number => {
-  const rate = i / 100;
+export const calculateTVM = (memory: { n: number, i: number, pv: number, pmt: number, fv: number }, solveFor: string): number => {
+  const { n, i, pv, pmt, fv } = memory;
+  const r = i / 100;
   
   switch (solveFor) {
     case 'fv':
-      // FV = -PV(1+i)^n - PMT[(1+i)^n - 1]/i
-      if (rate === 0) return -(pv + pmt * n);
-      return -(pv * Math.pow(1 + rate, n) + pmt * (Math.pow(1 + rate, n) - 1) / rate);
+      if (r === 0) return -(pv + pmt * n);
+      return -(pv * Math.pow(1 + r, n) + pmt * (Math.pow(1 + r, n) - 1) / r);
     
     case 'pv':
-      // PV = [-FV - PMT[(1+i)^n - 1]/i] / (1+i)^n
-      if (rate === 0) return -(fv + pmt * n);
-      return (-fv - pmt * (Math.pow(1 + rate, n) - 1) / rate) / Math.pow(1 + rate, n);
+      if (r === 0) return -(fv + pmt * n);
+      return (-fv - pmt * (Math.pow(1 + r, n) - 1) / r) / Math.pow(1 + r, n);
 
     case 'pmt':
-      // PMT = [-FV - PV(1+i)^n] * i / [(1+i)^n - 1]
-      if (rate === 0) return -(fv + pv) / n;
-      return (-fv - pv * Math.pow(1 + rate, n)) * rate / (Math.pow(1 + rate, n) - 1);
+      if (r === 0) return -(fv + pv) / n;
+      return (-fv - pv * Math.pow(1 + r, n)) * r / (Math.pow(1 + r, n) - 1);
 
     case 'n':
-      // Complex logarithmic solution
-      if (rate === 0) return -(fv + pv) / pmt;
+      if (r === 0) return pmt === 0 ? 0 : -(fv + pv) / pmt;
       try {
-        const num = Math.log((-fv * rate + pmt) / (pv * rate + pmt));
-        const den = Math.log(1 + rate);
+        const num = Math.log((pmt - fv * r) / (pmt + pv * r));
+        const den = Math.log(1 + r);
         return num / den;
       } catch (e) { return 0; }
+
+    case 'i':
+      let rate = 0.1; 
+      for (let j = 0; j < 20; j++) {
+        const powN = Math.pow(1 + rate, n);
+        const f = pv * powN + pmt * (powN - 1) / rate + fv;
+        const df = n * pv * Math.pow(1 + rate, n - 1) + pmt * (n * rate * Math.pow(1 + rate, n - 1) - (powN - 1)) / (rate * rate);
+        rate = rate - f / df;
+      }
+      return rate * 100;
 
     default:
       return 0;
   }
 };
 
-export const formatDisplay = (val: number): string => {
-  return val.toLocaleString('en-US', {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
+export const formatDisplay = (val: number, precision: number): string => {
+  if (isNaN(val) || !isFinite(val)) return "Error";
+  return val.toLocaleString('pt-BR', {
+    minimumFractionDigits: precision,
+    maximumFractionDigits: precision,
     useGrouping: true
   });
 };

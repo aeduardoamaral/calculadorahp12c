@@ -1,23 +1,20 @@
 
 export type ShiftMode = 'none' | 'f' | 'g';
 
+export interface TVMMemory {
+  n: number;
+  i: number;
+  pv: number;
+  pmt: number;
+  fv: number;
+}
+
 export interface HPState {
   stack: number[]; // RPN Stack [X, Y, Z, T]
   lastX: number;
-  memory: {
-    n: number;
-    i: number;
-    pv: number;
-    pmt: number;
-    fv: number;
-  };
+  memory: TVMMemory;
   display: string;
-  isEntering: boolean;
+  isEntering: boolean; // True quando o usuário está digitando
   shift: ShiftMode;
-}
-
-export interface CalculationHistory {
-  formula: string;
-  result: number;
-  timestamp: number;
+  precision: number; // Número de casas decimais (0-9)
 }
