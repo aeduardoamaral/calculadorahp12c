@@ -1,0 +1,5 @@
+{
+  "name": "HP 12C AI Financial Assistant",
+  "description": "A high-fidelity HP 12C emulator with RPN logic and an integrated Gemini-powered financial advisor for complex problem solving.",
+  "requestFramePermissions": []
+}

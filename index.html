@@ -1,0 +1,93 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HP 12C Replica - Ultra Responsive</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700&family=Inter:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      background-color: #0f172a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 10px;
+      font-family: 'Inter', sans-serif;
+    }
+    .hp-body {
+      background: linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 100%);
+      box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.6), inset 0 2px 2px rgba(255,255,255,0.1);
+      border: 3px solid #333;
+    }
+    .lcd-container {
+      background-color: #8da383;
+      box-shadow: inset 0 6px 12px rgba(0,0,0,0.5);
+      border: 3px solid #1a1a1a;
+      transition: all 0.3s ease;
+    }
+    .lcd-text {
+      font-family: 'JetBrains Mono', monospace;
+      color: #1a2a1a;
+      letter-spacing: -2px;
+    }
+    .hp-btn {
+      position: relative;
+      background: #333;
+      border-radius: 4px;
+      box-shadow: 0 3px 0 #111;
+      transition: all 0.05s;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .hp-btn:active {
+      transform: translateY(2px);
+      box-shadow: 0 1px 0 #111;
+    }
+    .hp-btn-gold { background: #facc15; box-shadow: 0 3px 0 #a16207; color: black; }
+    .hp-btn-blue { background: #38bdf8; box-shadow: 0 3px 0 #0369a1; color: white; }
+    
+    /* Labels dinâmicas */
+    .label-f { color: #fbbf24; font-weight: bold; position: absolute; top: -14px; left: 0; width: 100%; text-align: center; }
+    .label-g { color: #60a5fa; font-weight: bold; position: absolute; bottom: -12px; left: 0; width: 100%; text-align: center; }
+    
+    @media (max-width: 640px) {
+      .label-f, .label-g { font-size: 7px; top: -10px; bottom: -10px; }
+      .label-main { font-size: 10px; }
+      .hp-btn { height: 36px; }
+      .lcd-container { height: 70px; }
+      .lcd-text { font-size: 2rem; letter-spacing: -1px; }
+    }
+    @media (min-width: 641px) and (max-width: 1024px) {
+      .label-f, .label-g { font-size: 9px; top: -14px; bottom: -12px; }
+      .label-main { font-size: 13px; }
+      .hp-btn { height: 48px; }
+      .lcd-container { height: 90px; }
+    }
+    @media (min-width: 1025px) {
+      .label-f, .label-g { font-size: 11px; top: -18px; bottom: -14px; }
+      .label-main { font-size: 16px; }
+      .hp-btn { height: 56px; }
+      .lcd-container { height: 100px; }
+    }
+  </style>
+<script type="importmap">
+{
+  "imports": {
+    "react": "https://esm.sh/react@^19.2.3",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
+    "react/": "https://esm.sh/react@^19.2.3/",
+    "@google/genai": "https://esm.sh/@google/genai@^1.34.0"
+  }
+}
+</script>
+</head>
+<body>
+  <div id="root" class="w-full flex justify-center"></div>
+</body>
+</html>
