@@ -25,31 +25,28 @@ const HPKey = ({
 
   return (
     <div className={`flex flex-col items-center justify-end h-20 md:h-24 ${isEnter ? 'row-span-2' : ''}`}>
-      {f && <span className="label-f mb-1 h-4 text-[9px] md:text-[11px]">{f}</span>}
+      {f && <span className="label-f mb-1 h-4 text-[9px] md:text-[11px] uppercase tracking-tighter">{f}</span>}
       <button 
         onClick={onClick} 
         className={`key-3d w-full ${isEnter ? 'h-full' : 'h-10 md:h-12'} ${getVariantClass()} flex items-center justify-center`}
       >
-        <span className={`text-[11px] md:text-sm font-bold tracking-tight ${variant !== 'dark' ? 'text-black' : 'text-white'}`}>
+        <span className={`text-[10px] md:text-[13px] font-black tracking-tight ${variant !== 'dark' ? 'text-black' : 'text-white'}`}>
           {main}
         </span>
       </button>
-      {g && <span className="label-g mt-1 h-4 text-[9px] md:text-[11px]">{g}</span>}
+      {g && <span className="label-g mt-1 h-4 text-[9px] md:text-[11px] uppercase tracking-tighter">{g}</span>}
     </div>
   );
 };
 
 export default function App() {
   const [state, setState] = useState<HPState>(INITIAL_STATE);
-  const [accessCount, setAccessCount] = useState(0);
-  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(window.location.href)}`;
 
   useEffect(() => {
-    // Simulação de contador de acessos persistente
-    const localAccess = parseInt(localStorage.getItem('hp12c_access_count') || '1245');
-    const newCount = localAccess + 1;
-    localStorage.setItem('hp12c_access_count', newCount.toString());
-    setAccessCount(newCount);
+    // Manter a lógica de incremento de acessos no background se necessário, 
+    // mas não exibimos mais na interface conforme solicitado.
+    const localAccess = parseInt(localStorage.getItem('hp12c_access_count') || '1580');
+    localStorage.setItem('hp12c_access_count', (localAccess + 1).toString());
   }, []);
 
   const handleDigit = (digit: string) => {
@@ -99,58 +96,48 @@ export default function App() {
     });
   };
 
-  const handleTVM = (key: keyof HPState['memory']) => {
-    const val = parseFloat(state.display.replace(',', '.'));
-    setState(prev => ({ 
-      ...prev, 
-      memory: { ...prev.memory, [key]: val }, 
-      isEntering: false,
-      shift: 'none'
-    }));
-  };
-
   return (
-    <div className="flex flex-col lg:flex-row items-center justify-center gap-12 p-4">
-      {/* Container Principal da Calculadora */}
+    <div className="flex items-center justify-center p-6 min-h-screen w-full">
+      {/* Container Único da Calculadora */}
       <div className="calc-wrapper">
-        <div className="brushed-metal w-[340px] sm:w-[500px] md:w-[700px] lg:w-[940px] p-4 sm:p-6 md:p-8 rounded-[15px] md:rounded-[20px] shadow-2xl border-b-[8px] border-black">
+        <div className="brushed-metal w-[340px] sm:w-[500px] md:w-[700px] lg:w-[940px] p-6 md:p-10 rounded-[20px] shadow-2xl">
           
-          {/* Topo: Logo, LED e LCD */}
-          <div className="flex justify-between items-start mb-6 md:mb-10 px-2 md:px-4">
+          {/* Topo Industrial */}
+          <div className="flex justify-between items-start mb-8 md:mb-12 px-2">
             <div className="flex flex-col">
-              <div className="flex items-center gap-3">
-                <h1 className="text-[#c5a059] italic text-2xl md:text-5xl font-[900] tracking-tighter leading-none flex items-baseline">
-                  hp <span className="text-xl md:text-4xl ml-2 not-italic font-bold text-gray-400">12c</span>
+              <div className="flex items-center gap-6">
+                <h1 className="text-[#c5a059] italic text-3xl md:text-6xl font-[900] tracking-tighter leading-none flex items-baseline">
+                  hp <span className="text-2xl md:text-5xl ml-2 not-italic font-bold text-gray-500">12c</span>
                 </h1>
-                <div className="flex flex-col items-center ml-4">
+                <div className="flex flex-col items-center bg-black/40 px-3 py-1 rounded-lg border border-white/5">
                    <div className="led-active"></div>
-                   <span className="text-[7px] text-green-500 font-bold uppercase mt-1">Active</span>
+                   <span className="text-[8px] text-green-500 font-black uppercase mt-1 tracking-widest">Active</span>
                 </div>
               </div>
-              <p className="text-[8px] md:text-[10px] text-gray-500 font-bold uppercase tracking-[0.2em] md:tracking-[0.5em] mt-2">Platinum Financial Calculator</p>
+              <p className="text-[9px] md:text-[12px] text-gray-500 font-black uppercase tracking-[0.5em] mt-3 opacity-60">Platinum Financial Calculator</p>
             </div>
             
-            <div className="lcd-display w-[180px] sm:w-[280px] md:w-[420px] h-16 md:h-28 rounded-md flex flex-col justify-center items-end px-3 md:px-6">
-              <div className="flex justify-between w-full text-[9px] md:text-[11px] font-bold text-black/60 mb-1 md:mb-2">
-                <div className="flex gap-3 md:gap-6">
-                  <span className={state.shift === 'f' ? 'opacity-100' : 'opacity-10'}>f</span>
-                  <span className={state.shift === 'g' ? 'opacity-100' : 'opacity-10'}>g</span>
+            <div className="lcd-display w-[180px] sm:w-[280px] md:w-[420px] h-20 md:h-32 rounded-lg flex flex-col justify-center items-end px-4 md:px-8">
+              <div className="flex justify-between w-full text-[10px] md:text-[13px] font-black text-black/40 mb-2">
+                <div className="flex gap-4 md:gap-8">
+                  <span className={state.shift === 'f' ? 'text-black' : 'opacity-10'}>f</span>
+                  <span className={state.shift === 'g' ? 'text-black' : 'opacity-10'}>g</span>
                 </div>
-                <span className="opacity-40">RPN</span>
+                <span className="opacity-30">RPN MODE</span>
               </div>
-              <span className="text-2xl sm:text-4xl md:text-6xl font-bold font-mono tracking-tighter text-[#1a231a]">
+              <span className="text-3xl sm:text-5xl md:text-7xl font-bold font-mono tracking-tighter text-[#141d14] leading-none">
                 {state.display}
               </span>
             </div>
           </div>
 
-          {/* Grid de Teclas */}
-          <div className="grid grid-cols-10 gap-x-1 sm:gap-x-2 md:gap-x-4 gap-y-2 md:gap-y-4">
-            <HPKey f="AMORT" main="n" g="12x" onClick={() => handleTVM('n')} />
-            <HPKey f="INT" main="i" g="12÷" onClick={() => handleTVM('i')} />
-            <HPKey f="NPV" main="PV" g="CF0" onClick={() => handleTVM('pv')} />
-            <HPKey f="IRR" main="PMT" g="CFj" onClick={() => handleTVM('pmt')} />
-            <HPKey f="PV" main="FV" g="Nj" onClick={() => handleTVM('fv')} />
+          {/* Teclado Réplica */}
+          <div className="grid grid-cols-10 gap-x-1 md:gap-x-4 gap-y-2 md:gap-y-4">
+            <HPKey f="AMORT" main="n" g="12x" onClick={() => {}} />
+            <HPKey f="INT" main="i" g="12÷" onClick={() => {}} />
+            <HPKey f="NPV" main="PV" g="CF0" onClick={() => {}} />
+            <HPKey f="IRR" main="PMT" g="CFj" onClick={() => {}} />
+            <HPKey f="PV" main="FV" g="Nj" onClick={() => {}} />
             <HPKey f="BEG" main="CHS" g="END" onClick={() => {}} />
             <HPKey main="7" onClick={() => handleDigit('7')} />
             <HPKey main="8" onClick={() => handleDigit('8')} />
@@ -191,47 +178,13 @@ export default function App() {
             <HPKey main="+" onClick={() => handleOp('+')} />
           </div>
 
-          <div className="mt-6 md:mt-12 pt-4 md:pt-6 border-t border-white/5 flex justify-between items-center opacity-30">
-            <span className="text-[8px] md:text-[11px] text-white font-black uppercase tracking-[0.6em]">Hewlett-Packard</span>
-            <div className="flex gap-2">
-               <div className="w-1 md:w-2 h-1 md:h-2 rounded-full bg-white/20"></div>
-               <div className="w-1 md:w-2 h-1 md:h-2 rounded-full bg-white/20"></div>
+          <div className="mt-10 md:mt-16 pt-6 border-t border-white/5 flex justify-between items-center">
+            <span className="text-[10px] md:text-[13px] text-white/20 font-black uppercase tracking-[0.8em]">Hewlett-Packard</span>
+            <div className="flex gap-4">
+               <div className="w-2 h-2 rounded-full bg-white/5 shadow-inner"></div>
+               <div className="w-2 h-2 rounded-full bg-white/5 shadow-inner"></div>
             </div>
           </div>
-        </div>
-      </div>
-
-      {/* Painel Lateral: QR Code e Estatísticas */}
-      <div className="flex flex-col items-center lg:items-start gap-8 bg-white p-8 rounded-2xl shadow-lg border border-gray-200 min-w-[280px]">
-        <div className="text-center lg:text-left">
-          <h3 className="text-gray-800 font-bold text-lg mb-1">Use no seu Celular</h3>
-          <p className="text-gray-500 text-sm">Escaneie o código abaixo</p>
-        </div>
-        
-        <div className="p-3 bg-white border-2 border-gray-100 rounded-xl shadow-inner">
-          <img src={qrUrl} alt="QR Code" className="w-32 h-32 md:w-40 md:h-40" />
-        </div>
-
-        <div className="w-full space-y-4 pt-4 border-t border-gray-100">
-          <div className="flex justify-between items-center">
-            <span className="text-gray-500 text-sm">Acessos Totais</span>
-            <span className="bg-gray-100 text-gray-800 font-mono font-bold px-3 py-1 rounded-full text-sm">
-              {accessCount.toLocaleString()}
-            </span>
-          </div>
-          <div className="flex justify-between items-center">
-            <span className="text-gray-500 text-sm">Disponibilidade</span>
-            <span className="flex items-center gap-2 text-green-600 font-bold text-sm">
-              <span className="w-2 h-2 rounded-full bg-green-500 animate-ping"></span>
-              Online
-            </span>
-          </div>
-        </div>
-
-        <div className="bg-blue-50 p-4 rounded-xl border border-blue-100 mt-2">
-          <p className="text-blue-700 text-xs leading-relaxed">
-            <b>Dica:</b> Para uma experiência tátil melhor no tablet ou celular, use o dispositivo na horizontal.
-          </p>
         </div>
       </div>
     </div>
