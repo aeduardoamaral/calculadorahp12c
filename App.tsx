@@ -7,30 +7,34 @@ const INITIAL_STATE: HPState = {
   stack: [0, 0, 0, 0],
   lastX: 0,
   memory: { n: 0, i: 0, pv: 0, pmt: 0, fv: 0 },
-  display: '0.00',
+  display: '0,00',
   isEntering: false,
   shift: 'none'
 };
 
-const SimpleButton = ({ 
-  f, main, g, onClick, color = "dark", isTall = false 
+const HPKey = ({ 
+  f, main, g, onClick, variant = "dark", isEnter = false 
 }: { 
-  f?: string, main: string, g?: string, onClick: () => void, color?: string, isTall?: boolean 
+  f?: string, main: string, g?: string, onClick: () => void, variant?: "dark" | "gold" | "blue", isEnter?: boolean 
 }) => {
-  let bgColor = "bg-[#333]";
-  if (color === "gold") bgColor = "bg-[#d4af37]";
-  if (color === "blue") bgColor = "bg-[#38bdf8]";
-  
+  const getVariantClass = () => {
+    if (variant === "gold") return "key-gold";
+    if (variant === "blue") return "key-blue";
+    return "";
+  };
+
   return (
-    <div className={`flex flex-col items-center justify-end h-16 ${isTall ? 'row-span-2' : ''}`}>
-      {f && <span className="label-f-text mb-1 h-3">{f}</span>}
+    <div className={`flex flex-col items-center justify-end h-24 ${isEnter ? 'row-span-2' : ''}`}>
+      {f && <span className="label-f mb-1 h-4">{f}</span>}
       <button 
         onClick={onClick} 
-        className={`${bgColor} w-full ${isTall ? 'h-full' : 'h-10'} rounded-sm btn-hp shadow-md`}
+        className={`key-3d w-full ${isEnter ? 'h-full' : 'h-12'} ${getVariantClass()} flex items-center justify-center`}
       >
-        <span className={`label-main-text ${color !== 'dark' ? 'text-black' : 'text-white'}`}>{main}</span>
+        <span className={`text-sm font-bold tracking-tight ${variant !== 'dark' ? 'text-black' : 'text-white'}`}>
+          {main}
+        </span>
       </button>
-      {g && <span className="label-g-text mt-1 h-3">{g}</span>}
+      {g && <span className="label-g mt-1 h-4">{g}</span>}
     </div>
   );
 };
@@ -40,34 +44,34 @@ export default function App() {
 
   const handleDigit = (digit: string) => {
     setState(prev => {
-      let newDisplay = prev.isEntering ? prev.display.replace(/,/g, '') + digit : digit;
+      let currentDisplay = prev.display.replace(/,/g, '');
+      let newDisplay = prev.isEntering ? currentDisplay + digit : digit;
       if (newDisplay === '.') newDisplay = '0.';
-      if (newDisplay.length > 12) return prev;
-      const val = parseFloat(newDisplay) || 0;
+      if (newDisplay.length > 10) return prev;
       return { 
         ...prev, 
-        display: newDisplay, 
+        display: newDisplay.replace('.', ','), 
         isEntering: true,
-        stack: [val, prev.stack[1], prev.stack[2], prev.stack[3]]
+        stack: [parseFloat(newDisplay) || 0, prev.stack[1], prev.stack[2], prev.stack[3]]
       };
     });
   };
 
   const handleEnter = () => {
     setState(prev => {
-      const val = parseFloat(prev.display.replace(/,/g, ''));
+      const val = parseFloat(prev.display.replace(',', '.'));
       return { 
         ...prev, 
         stack: [val, val, prev.stack[1], prev.stack[2]], 
         isEntering: false, 
-        display: formatDisplay(val) 
+        display: formatDisplay(val).replace('.', ',')
       };
     });
   };
 
   const handleOp = (op: string) => {
     setState(prev => {
-      const x = parseFloat(prev.display.replace(/,/g, ''));
+      const x = parseFloat(prev.display.replace(',', '.'));
       const y = prev.stack[1];
       let res = 0;
       switch(op) {
@@ -79,14 +83,14 @@ export default function App() {
       return { 
         ...prev, 
         stack: [res, prev.stack[2], prev.stack[3], prev.stack[3]], 
-        display: formatDisplay(res), 
+        display: formatDisplay(res).replace('.', ','), 
         isEntering: false 
       };
     });
   };
 
-  const handleTVMSet = (key: keyof HPState['memory']) => {
-    const val = parseFloat(state.display.replace(/,/g, ''));
+  const handleTVM = (key: keyof HPState['memory']) => {
+    const val = parseFloat(state.display.replace(',', '.'));
     setState(prev => ({ 
       ...prev, 
       memory: { ...prev.memory, [key]: val }, 
@@ -96,79 +100,91 @@ export default function App() {
   };
 
   return (
-    <div className="bg-[#1a1a1a] p-4 sm:p-6 rounded-lg w-full max-w-[900px] shadow-2xl">
-      {/* Top Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
-        <div className="text-left w-full sm:w-auto">
-          <h1 className="text-[#d4af37] italic text-3xl font-black leading-none">hp <span className="text-2xl">12c</span></h1>
-          <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Financial Calculator</p>
-        </div>
+    <div className="calc-container">
+      <div className="brushed-metal w-[940px] p-8 rounded-[20px] shadow-[0_50px_100px_-20px_rgba(0,0,0,0.6)] border-b-[8px] border-black">
         
-        <div className="lcd-screen w-full sm:w-[350px] h-20 sm:h-24 rounded flex flex-col justify-center items-end px-4">
-          <div className="flex justify-between w-full text-[10px] font-bold text-black/40 mb-1">
-            <div className="flex gap-4">
-              <span className={state.shift === 'f' ? 'opacity-100' : 'opacity-0'}>f</span>
-              <span className={state.shift === 'g' ? 'opacity-100' : 'opacity-0'}>g</span>
-            </div>
-            <span>RPN</span>
+        {/* Superior: Logotipos e LCD */}
+        <div className="flex justify-between items-start mb-10 px-4">
+          <div className="flex flex-col">
+            <h1 className="text-[#c5a059] italic text-5xl font-[900] tracking-tighter leading-none flex items-baseline">
+              hp <span className="text-4xl ml-2 not-italic font-bold text-gray-300">12c</span>
+            </h1>
+            <p className="text-[10px] text-gray-500 font-bold uppercase tracking-[0.5em] mt-2">Platinum Financial Calculator</p>
           </div>
-          <span className="text-3xl sm:text-5xl font-bold">{state.display}</span>
+          
+          <div className="lcd-display w-[420px] h-28 rounded-md flex flex-col justify-center items-end px-6">
+            <div className="flex justify-between w-full text-[11px] font-bold text-black/60 mb-2">
+              <div className="flex gap-6">
+                <span className={state.shift === 'f' ? 'opacity-100' : 'opacity-10'}>f</span>
+                <span className={state.shift === 'g' ? 'opacity-100' : 'opacity-10'}>g</span>
+              </div>
+              <span className="opacity-40">RPN</span>
+            </div>
+            <span className="text-6xl font-bold font-mono tracking-tighter text-[#1a231a]">
+              {state.display}
+            </span>
+          </div>
         </div>
-      </div>
 
-      {/* Grid of buttons - 10 Columns */}
-      <div className="grid grid-cols-5 sm:grid-cols-10 gap-2 sm:gap-3">
-        {/* Row 1 */}
-        <SimpleButton f="AMORT" main="n" g="12x" onClick={() => handleTVMSet('n')} />
-        <SimpleButton f="INT" main="i" g="12÷" onClick={() => handleTVMSet('i')} />
-        <SimpleButton f="NPV" main="PV" g="CF0" onClick={() => handleTVMSet('pv')} />
-        <SimpleButton f="IRR" main="PMT" g="CFj" onClick={() => handleTVMSet('pmt')} />
-        <SimpleButton f="PV" main="FV" g="Nj" onClick={() => handleTVMSet('fv')} />
-        <SimpleButton f="BEG" main="CHS" g="END" onClick={() => {}} />
-        <SimpleButton main="7" onClick={() => handleDigit('7')} />
-        <SimpleButton main="8" onClick={() => handleDigit('8')} />
-        <SimpleButton main="9" onClick={() => handleDigit('9')} />
-        <SimpleButton main="÷" onClick={() => handleOp('/')} />
+        {/* Teclado: 10 colunas com etiquetas realistas */}
+        <div className="grid grid-cols-10 gap-x-4 gap-y-4">
+          {/* Linha 1 */}
+          <HPKey f="AMORT" main="n" g="12x" onClick={() => handleTVM('n')} />
+          <HPKey f="INT" main="i" g="12÷" onClick={() => handleTVM('i')} />
+          <HPKey f="NPV" main="PV" g="CF0" onClick={() => handleTVM('pv')} />
+          <HPKey f="IRR" main="PMT" g="CFj" onClick={() => handleTVM('pmt')} />
+          <HPKey f="PV" main="FV" g="Nj" onClick={() => handleTVM('fv')} />
+          <HPKey f="BEG" main="CHS" g="END" onClick={() => {}} />
+          <HPKey main="7" onClick={() => handleDigit('7')} />
+          <HPKey main="8" onClick={() => handleDigit('8')} />
+          <HPKey main="9" onClick={() => handleDigit('9')} />
+          <HPKey main="÷" onClick={() => handleOp('/')} />
 
-        {/* Row 2 */}
-        <SimpleButton f="yˣ" main="1/x" g="√x" onClick={() => {}} />
-        <SimpleButton f="x!" main="yˣ" g="eˣ" onClick={() => {}} />
-        <SimpleButton f="%" main="Δ%" g="LN" onClick={() => {}} />
-        <SimpleButton f="ABS" main="%" g="FRAC" onClick={() => {}} />
-        <SimpleButton f="PRGM" main="EEX" g="INTG" onClick={() => {}} />
-        <SimpleButton f="P/R" main="RS" g="PSE" onClick={() => {}} />
-        <SimpleButton main="4" onClick={() => handleDigit('4')} />
-        <SimpleButton main="5" onClick={() => handleDigit('5')} />
-        <SimpleButton main="6" onClick={() => handleDigit('6')} />
-        <SimpleButton main="×" onClick={() => handleOp('*')} />
+          {/* Linha 2 */}
+          <HPKey f="yˣ" main="1/x" g="√x" onClick={() => {}} />
+          <HPKey f="x!" main="yˣ" g="eˣ" onClick={() => {}} />
+          <HPKey f="%" main="Δ%" g="LN" onClick={() => {}} />
+          <HPKey f="ABS" main="%" g="FRAC" onClick={() => {}} />
+          <HPKey f="PRGM" main="EEX" g="INTG" onClick={() => {}} />
+          <HPKey f="P/R" main="RS" g="PSE" onClick={() => {}} />
+          <HPKey main="4" onClick={() => handleDigit('4')} />
+          <HPKey main="5" onClick={() => handleDigit('5')} />
+          <HPKey main="6" onClick={() => handleDigit('6')} />
+          <HPKey main="×" onClick={() => handleOp('*')} />
 
-        {/* Row 3 */}
-        <SimpleButton f="SST" main="R↓" g="BST" onClick={() => {}} />
-        <SimpleButton f="x<>y" main="x<>y" g="GTO" onClick={() => {}} />
-        <SimpleButton f="CLx" main="CLX" g="x≤y" onClick={() => setState(prev => ({...prev, display: '0.00', isEntering: false}))} />
-        <SimpleButton f="x≤y" main="STO" g="x=0" onClick={() => {}} />
-        <SimpleButton f="x=0" main="RCL" g="x≠0" onClick={() => {}} />
-        <SimpleButton main="ENTER" isTall onClick={handleEnter} />
-        <SimpleButton main="1" onClick={() => handleDigit('1')} />
-        <SimpleButton main="2" onClick={() => handleDigit('2')} />
-        <SimpleButton main="3" onClick={() => handleDigit('3')} />
-        <SimpleButton main="-" onClick={() => handleOp('-')} />
+          {/* Linha 3 */}
+          <HPKey f="SST" main="R↓" g="BST" onClick={() => {}} />
+          <HPKey f="x<>y" main="x<>y" g="GTO" onClick={() => {}} />
+          <HPKey f="CLx" main="CLX" g="x≤y" onClick={() => setState(prev => ({...prev, display: '0,00', isEntering: false}))} />
+          <HPKey f="x≤y" main="STO" g="x=0" onClick={() => {}} />
+          <HPKey f="x=0" main="RCL" g="x≠0" onClick={() => {}} />
+          <HPKey main="ENTER" isEnter onClick={handleEnter} />
+          <HPKey main="1" onClick={() => handleDigit('1')} />
+          <HPKey main="2" onClick={() => handleDigit('2')} />
+          <HPKey main="3" onClick={() => handleDigit('3')} />
+          <HPKey main="-" onClick={() => handleOp('-')} />
 
-        {/* Row 4 */}
-        <SimpleButton main="ON" onClick={() => setState(INITIAL_STATE)} />
-        <SimpleButton main="f" color="gold" onClick={() => setState(p => ({...p, shift: p.shift === 'f' ? 'none' : 'f'}))} />
-        <SimpleButton main="g" color="blue" onClick={() => setState(p => ({...p, shift: p.shift === 'g' ? 'none' : 'g'}))} />
-        <SimpleButton main="STO" onClick={() => {}} />
-        <SimpleButton main="RCL" onClick={() => {}} />
-        <div className="hidden sm:block"></div> {/* Spacer for ENTER in desktop */}
-        <SimpleButton main="0" onClick={() => handleDigit('0')} />
-        <SimpleButton main="." onClick={() => handleDigit('.')} />
-        <SimpleButton main="Σ+" onClick={() => {}} />
-        <SimpleButton main="+" onClick={() => handleOp('+')} />
-      </div>
+          {/* Linha 4 */}
+          <HPKey main="ON" onClick={() => setState(INITIAL_STATE)} />
+          <HPKey main="f" variant="gold" onClick={() => setState(p => ({...p, shift: p.shift === 'f' ? 'none' : 'f'}))} />
+          <HPKey main="g" variant="blue" onClick={() => setState(p => ({...p, shift: p.shift === 'g' ? 'none' : 'g'}))} />
+          <HPKey main="STO" onClick={() => {}} />
+          <HPKey main="RCL" onClick={() => {}} />
+          <div className="col-span-1"></div> {/* Espaço do ENTER Tall */}
+          <HPKey main="0" onClick={() => handleDigit('0')} />
+          <HPKey main="." onClick={() => handleDigit('.')} />
+          <HPKey main="Σ+" onClick={() => {}} />
+          <HPKey main="+" onClick={() => handleOp('+')} />
+        </div>
 
-      <div className="mt-8 text-center border-t border-white/10 pt-4">
-        <p className="text-[10px] text-gray-600 font-bold uppercase tracking-[0.3em]">Hewlett Packard 12C Platinum Replica</p>
+        {/* Rodapé Decorativo */}
+        <div className="mt-12 pt-6 border-t border-white/5 flex justify-between items-center opacity-30">
+          <span className="text-[11px] text-white font-black uppercase tracking-[0.6em]">Hewlett-Packard</span>
+          <div className="flex gap-2">
+             <div className="w-2 h-2 rounded-full bg-white/20"></div>
+             <div className="w-2 h-2 rounded-full bg-white/20"></div>
+          </div>
+        </div>
       </div>
     </div>
   );

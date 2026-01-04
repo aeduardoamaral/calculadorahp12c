@@ -3,37 +3,94 @@
 <html lang="pt-br">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>HP 12C Simples</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>HP 12C - Réplica Original</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700&family=Inter:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@700&family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
   <style>
     body {
-      background-color: #ffffff; /* Fundo Branco */
+      background-color: #ffffff;
       margin: 0;
-      padding: 10px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
       font-family: 'Inter', sans-serif;
     }
-    .lcd-screen {
-      background-color: #a8bfa1;
-      border: 3px solid #1a1a1a;
-      font-family: 'JetBrains Mono', monospace;
-      color: #1a231a;
+
+    /* Efeito de Metal Escovado */
+    .brushed-metal {
+      background: #222;
+      background-image: 
+        linear-gradient(rgba(255,255,255,.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.05) 1px, transparent 1px),
+        linear-gradient(rgba(255,255,255,.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.02) 1px, transparent 1px);
+      background-size: 100px 100px, 100px 100px, 20px 20px, 20px 20px;
+      position: relative;
     }
-    .btn-hp {
-      transition: opacity 0.1s;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      border-radius: 2px;
+    
+    .brushed-metal::after {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.03) 50%, transparent 100%);
+      pointer-events: none;
     }
-    .btn-hp:active {
-      opacity: 0.7;
+
+    /* Tecla 3D Realista */
+    .key-3d {
+      background: linear-gradient(135deg, #444 0%, #222 100%);
+      border: 1px solid #111;
+      border-radius: 3px;
+      box-shadow: 
+        0 4px 0 #000,
+        0 5px 10px rgba(0,0,0,0.5),
+        inset 0 1px 1px rgba(255,255,255,0.2);
+      transition: all 0.05s ease;
+      cursor: pointer;
     }
-    .label-f-text { color: #d4af37; font-size: 10px; font-weight: bold; }
-    .label-g-text { color: #38bdf8; font-size: 10px; font-weight: bold; }
-    .label-main-text { color: white; font-size: 14px; font-weight: bold; }
+
+    .key-3d:active {
+      transform: translateY(3px);
+      box-shadow: 
+        0 1px 0 #000,
+        0 2px 5px rgba(0,0,0,0.5);
+    }
+
+    .key-gold { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); box-shadow: 0 4px 0 #92400e; }
+    .key-blue { background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%); box-shadow: 0 4px 0 #075985; }
+    
+    /* Visor LCD Realista */
+    .lcd-display {
+      background-color: #8da383;
+      border: 4px solid #1a1a1a;
+      box-shadow: 
+        inset 0 10px 20px rgba(0,0,0,0.3),
+        0 1px 1px rgba(255,255,255,0.2);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .lcd-display::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; right: 0; height: 40%;
+      background: linear-gradient(to bottom, rgba(255,255,255,0.1) 0%, transparent 100%);
+      pointer-events: none;
+    }
+
+    .label-f { color: #c5a059; font-size: 11px; font-weight: 800; font-style: italic; }
+    .label-g { color: #38bdf8; font-size: 11px; font-weight: 800; font-style: italic; }
+
+    /* Responsividade via Escala */
+    .calc-container {
+      transform-origin: center center;
+    }
+    @media (max-width: 950px) { .calc-container { transform: scale(0.85); } }
+    @media (max-width: 800px) { .calc-container { transform: scale(0.7); } }
+    @media (max-width: 650px) { .calc-container { transform: scale(0.5); } }
+    @media (max-width: 450px) { .calc-container { transform: scale(0.4); } }
   </style>
   <script type="importmap">
 {
@@ -41,15 +98,15 @@
     "react": "https://esm.sh/react@19.0.0",
     "react-dom": "https://esm.sh/react-dom@19.0.0",
     "react-dom/client": "https://esm.sh/react-dom@19.0.0/client",
+    "@google/genai": "https://esm.sh/@google/genai@1.34.0",
     "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
-    "react/": "https://esm.sh/react@^19.2.3/",
-    "@google/genai": "https://esm.sh/@google/genai@^1.34.0"
+    "react/": "https://esm.sh/react@^19.2.3/"
   }
 }
 </script>
 </head>
 <body>
-  <div id="root" class="flex justify-center items-start pt-10"></div>
+  <div id="root"></div>
   <script type="module" src="index.tsx"></script>
 </body>
 </html>
