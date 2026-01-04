@@ -14,7 +14,8 @@ export interface HPState {
   lastX: number;
   memory: TVMMemory;
   display: string;
-  isEntering: boolean; // True quando o usuário está digitando
+  isEntering: boolean;
   shift: ShiftMode;
-  precision: number; // Número de casas decimais (0-9)
+  precision: number;
+  isOn: boolean; // Estado de energia
 }
